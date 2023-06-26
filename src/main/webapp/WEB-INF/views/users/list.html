@@ -1,0 +1,461 @@
+
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="utf-8">
+    <title> Customer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="Responsive bootstrap 4 admin template" name="description">
+    <meta content="Coderthemes" name="author">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- App favicon -->
+    <link href="/assets/css/style.css" rel="stylesheet">
+    <link rel="shortcut icon" href="\assets\images\favicon.ico">
+
+    <!-- Table datatable css -->
+    <link href="\assets\libs\datatables\dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css">
+
+    <link href="\assets\libs\datatables\buttons.bootstrap4.min.css" rel="stylesheet" type="text/css">
+    <link href="\assets\libs\datatables\responsive.bootstrap4.min.css" rel="stylesheet" type="text/css">
+    <link href="\assets\libs\datatables\select.bootstrap4.min.css" rel="stylesheet" type="text/css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <!-- App css -->
+    <link href="\assets\css\bootstrap.min.css" rel="stylesheet" type="text/css" id="bootstrap-stylesheet">
+    <link href="\assets\css\icons.min.css" rel="stylesheet" type="text/css">
+    <link href="\assets\css\app.min.css" rel="stylesheet" type="text/css" id="app-stylesheet">
+
+    <script src="/assets/js/app/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+
+<!-- Begin page -->
+<div id="wrapper">
+    <th:block th:replace="/layout/navbar:: navbar"/>
+    <th:block th:replace="/layout/left_side :: left-side"/>
+
+    <!-- Topbar Start -->
+
+    <!-- end Topbar -->
+
+
+    <!-- ========== Left Sidebar Start ========== -->
+    <!-- Left Sidebar End -->
+
+    <!-- ============================================================== -->
+    <!-- Start Page Content here -->
+    <!-- ============================================================== -->
+
+    <div class="content-page">
+        <div class="content">
+
+            <!-- Start Content-->
+            <div class="container-fluid">
+
+                <!-- start page title -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="page-title-box">
+                            <h4 class="page-title">Customer</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- end page title -->
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card-box">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <h4 class="header-title">LIST CUSTOMER</h4>
+                                </div>
+                                <div class="col-sm-3"></div>
+<!--                                <div class="col-sm-3">-->
+<!--                                    <button id="addCustomer" class="btn btn-outline-success btn-add"-->
+<!--                                            style="margin-left: 15px">-->
+<!--                                        <i class="fa fa-plus"></i> Add new Customer-->
+<!--                                    </button>-->
+<!--                                </div>-->
+                            </div>
+                            <p></p>
+
+                            <table id="tbCustomer" class="table table-bordered dt-responsive nowrap"
+                                   style="border-collapse: collapse; border-spacing: 0; width: 100%;text-align: center ">
+                                <thead>
+                                <tr>
+                                    <th class="col-1">#</th>
+                                    <th class="col-2">User Name</th>
+                                    <th class="col-2">Password</th>
+                                    <th class="col-2">Phone</th>
+                                    <th class="col-2">Address</th>
+                                    <th class="col-2">Role</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div> <!-- end row -->
+
+            </div> <!-- end container-fluid -->
+
+        </div> <!-- end content -->
+        <th:block th:replace="/users/modal_createCus :: modal_createCus"/>
+        <th:block th:replace="/users/modal_updateCus :: modal_updateCus"/>
+    </div>
+
+</div>
+        </div>
+    </div>
+</div>
+<!-- END wrapper -->
+<th:block th:replace="/layout/script:: script"/>
+<th:block th:replace="/layout/script :: script-page"/>
+
+<script src="/assets/js/app/jquery.validate.js"></script>
+
+<script src="/assets/js/app/jquery-3.6.0.min.js"></script>
+<script src="/assets/js/app/jquery.validate.js"></script>
+
+<!-- Vendor js -->
+<script src="/assets/js/vendor.min.js"></script>
+
+<!-- Responsive Table js -->
+<script src="/assets/libs/rwd-table/rwd-table.min.js"></script>
+
+<!-- Init js -->
+<script src="/assets/js/pagesr/esponsive-table.init.js"></script>
+
+<!-- App js -->
+<script src="/assets/js/app.js"></script>
+<script src="/assets/js/app.min.js"></script>
+<script>
+    let customer = new Customer();
+    let user = new User();
+
+    function all() {
+        $.ajax({
+            type: "GET",
+            url: "http://localhost:8080/api/user"
+
+        })
+            .done((data) => {
+                $.each(data, (i, item) => {
+                    console.log(item)
+                    let str = `
+                                    <tr id="tr_${item.id}">
+                                       <td>${item.id}</td>
+                                       <td>${item.username}</td>
+                                       <td>${item.password}</td>
+                                       <td>${item.phone}</td>
+                                       <td>${item.address}</td>
+                                       <td>${item.role.code}</td>
+                                    </tr>
+                        `;
+                    $("#tbCustomer tbody").prepend(str);
+                })
+                handleBtn()
+            });
+    }
+    all();
+    // function loadCustomers() {
+    //     alert("Okey")
+    // }
+
+    $("#addCustomer").on("click", function () {
+        $("#mdCreateCus").modal("show");
+    })
+
+    $("#btnCreateCus").on("click", function () {
+        // alert("ssss")
+        $('#mdCreateCus .modal-alert-danger').removeClass('show').addClass('hide');
+        $("#mdCreateCus .modal-alert-danger").empty();
+        $('#frmCreateCus').submit();
+    })
+    $('#btnUpdateCus').on('click', function () {
+        $('#mdUpdateCus .modal-alert-danger').removeClass('show').addClass('hide');
+        $("#mdUpdateCus .modal-alert-danger").empty();
+        $('#frmUpdateCus').submit();
+    })
+
+    // function doCreateCustomer(){
+    //     alert("okey doCreateCustomer")
+    // }
+    function doCreateCus() {
+
+        // let fullName = $('#fullName').val();
+        // let email = $('#email').val();
+        // let phone = $('#phone').val();
+        // let address = $('#address').val();
+
+        delete customer.id;
+        customer.fullName = $('#fullName').val();
+        customer.email = $('#email').val();
+        customer.phone = $('#phone').val();
+        customer.address = $('#address').val();
+        // customer.isDeleted = 0;
+
+        // customer = new Customer()
+        $.ajax({
+            headers: {
+                "accept": "application/json",
+                "content-type": "application/json"
+            },
+            type: "POST",
+            url: "http://localhost:8080/api/customers/create",
+            data: JSON.stringify(customer)
+        })
+            .done((item) => {
+                alert("vo day ko")
+                // all(item);
+                let str = `
+                                    <tr id="tr_${item.id}">
+                                       <td>${item.id}</td>
+                                       <td>${item.fullName}</td>
+                                       <td>${item.email}</td>
+                                       <td>${item.phone}</td>
+                                       <td>${item.address}</td>
+                                       <td>
+                                             <button data-id = "${item.id}" type="button" class="btn btn-outline-secondary edit"> <i class="fas fa-pen-square"></i> </button>
+                                             <button data-id = "${item.id}" type="button" class="btn btn-outline-danger block"> <i class="fa fa-ban"></i> </button>
+                                       </td>
+                                    </tr>
+                        `;
+
+                $("#tbCustomer tbody").prepend(str);
+
+                handleBtn();
+
+                $("#mdCreateCus").modal("hide");
+
+                App.SweetAlert.showSuccessAlert("Create customer success!");
+            })
+            .fail((jqXHR) => {
+
+                let str = ``;
+
+                if (jqXHR.status === 401) {
+                    setTimeout(() => {
+                        App.SweetAlert.showErrorAlert(App.ERROR_401);
+                    },3000)
+
+                    location.href = "/logout";
+
+                } else if(jqXHR.status === 403) {
+                    App.SweetAlert.showErrorAlert(App.ERROR_403);
+
+                }  else if(jqXHR.status === 500) {
+                    App.SweetAlert.showErrorAlert(App.ERROR_500);
+                } else if(jqXHR.responseJSON) {
+
+                    $.each(jqXHR.responseJSON, function (key, value) {
+                        str += `<label id="${key}-error" class="error" for="${key}">${value}</label>`;
+                        $("#" + key).addClass("error");
+                    });
+
+                }
+
+                $("#mdCreateCus .modal-alert-danger").empty().removeClass("hide").addClass("show").append(str);
+            });
+
+        $("#frmCreateCus")[0].reset();
+    }
+
+    function doUpdate() {
+
+        alert("edit")
+        customer.fullName = $('#fullNameUp').val();
+        customer.email = $('#emailUp').val();
+        customer.phone = $('#phoneUp').val();
+        customer.address = $('#addressUp').val();
+
+        $.ajax({
+            headers: {
+                "accept": "application/json",
+                "content-type": "application/json"
+            },
+            type: "PUT",
+            url: "http://localhost:8080/api/customers/edit/" + customer.id,
+            data: JSON.stringify(customer)
+        })
+            .done((item) => {
+                // console.log(item);
+                let str = `
+                                    <tr id="tr_${item.id}">
+                                       <td>${item.id}</td>
+                                       <td>${item.fullName}</td>
+
+                                       <td>${item.email}</td>
+                                       <td>${item.phone}</td>
+                                       <td>${item.address}</td>
+                                       <td>
+                                             <button data-id = "${item.id}" type="button" class="btn btn-outline-secondary edit"> <i class="fas fa-pen-square"></i> </button>
+                                             <button data-id = "${item.id}" type="button" class="btn btn-outline-danger block"> <i class="fa fa-ban"></i> </button>
+                                       </td>
+                                    </tr>
+                        `;
+
+                let currentRow = $('#tr_' + item.id);
+                currentRow.replaceWith(str);
+
+                handleBtn();
+                $("#mdUpdateCus").modal("hide");
+
+                App.SweetAlert.showSuccessAlert("Update customer success!");
+
+            })
+            .fail((jqXHR) => {
+
+                let str = ``;
+
+                if (jqXHR.status === 401) {
+                    App.SweetAlert.showErrorAlert(App.ERROR_401);
+                    setTimeout(() => {
+                        location.href = "/logout";
+                    },3000)
+
+                } else if(jqXHR.status === 403) {
+                    App.SweetAlert.showErrorAlert(App.ERROR_403);
+
+                }  else if(jqXHR.status === 500) {
+                    App.SweetAlert.showErrorAlert(App.ERROR_500);
+                } else if(jqXHR.responseJSON) {
+
+                    $.each(jqXHR.responseJSON, function (key, value) {
+                        str += `<label id="${key}Up-error" class="error" for="${key}Up">${value}</label>`;
+                        $("#" + key).addClass("error");
+                    });
+                    $("#mdUpdateCus .modal-alert-danger").empty().removeClass("hide").addClass("show").append(str);
+                }
+            })
+        // $("#frmEdit")[0].reset();
+    }
+
+    function doBlock() {
+        $.ajax({
+            headers: {
+                "accept": "application/json",
+                "content-type": "application/json"
+            },
+            type: "DELETE",
+            url: "http://localhost:8080/api/customers/block/" + customer.id,
+            data: JSON.stringify(customer)
+        })
+            .done((item) => {
+                console.log(item);
+
+                let currentRow = $('#tr_' + item);
+                currentRow.replaceWith("");
+
+                handleBtn();
+                // $("#mdEdit").modal("hide");
+
+                App.SweetAlert.showSuccessAlert("Deleted customer success!");
+
+            })
+            .fail((jqXHR) => {
+
+                if (jqXHR.status === 401) {
+                    App.SweetAlert.showErrorAlert(App.ERROR_401);
+                    setTimeout(() => {
+                        location.href = "/logout";
+                    },3000)
+
+                } else if(jqXHR.status === 403) {
+                    App.SweetAlert.showErrorAlert(App.ERROR_403);
+
+                }  else if(jqXHR.status === 500) {
+                    App.SweetAlert.showErrorAlert(App.ERROR_500);
+                }
+            })
+
+        // $("#frmEdit")[0].reset();
+    }
+    $('#frmCreateCus').validate({
+
+        submitHandler: function () {
+            doCreateCus();
+        }
+    });
+    $('#frmUpdateCus').validate({
+
+        submitHandler: function () {
+            doUpdate();
+        }
+    });
+    $("#mdCreateCus").on("hidden.bs.modal", function () {
+        $("#mdCreateCus .modal-alert-danger").empty();
+        $("#frmCreateCus")[0].reset();
+        $('#mdCreateCus .modal-alert-danger').removeClass('show').addClass('hide');
+
+    });
+    $("#mdUpdateCus").on("hidden.bs.modal", function () {
+        $("#mdUpdateCus .modal-alert-danger").empty();
+        $("#mdUpdateCus .modal-alert-danger").removeClass("show").addClass("hide");
+
+        $("#frmUpdateCus input.error").removeClass("error");
+        $("#frmUpdateCus")[0].reset();
+        $("#frmUpdateCus").validate().resetForm();
+    });
+
+    function handleEditBtn() {
+
+        $('.edit').on('click', function () {
+            let id = $(this).data('id');
+
+            findById(id).then(function () {
+
+                $('#fullNameUp').val(customer.fullName);
+                $('#emailUp').val(customer.email);
+                $('#phoneUp').val(customer.phone);
+                $('#addressUp').val(customer.address);
+
+                $('#mdUpdateCus').modal('show');
+            });
+        });
+    }
+    function handleBlockUser() {
+        $(".block").on("click", function () {
+            let id = $(this).data("id");
+
+            findById(id).then(function () {
+                App.SweetAlert.showSuspendConfirmDialog()
+                    .then((result) => {
+
+                        if (result.isConfirmed)
+                            doBlock();
+                    });
+            })
+        })
+    }
+
+    function handleBtn() {
+        handleBlockUser();
+        handleEditBtn();
+
+    }
+
+    function findById(id) {
+        return $.ajax({
+            type: "GET",
+            url: "http://localhost:8080/api/customers/" + id
+        })
+            .done((data) => {
+                console.log(data);
+                customer = data;
+            })
+            .fail((err) => {
+                alert("Id not found");
+            })
+    }
+
+
+    // loadCustomers();
+</script>
+
+</body>
+</html>

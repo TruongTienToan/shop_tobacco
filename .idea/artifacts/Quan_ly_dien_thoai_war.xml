@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="Quan_ly_dien_thoai:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <module>Quan_ly_dien_thoai</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="archive" name="Quan_ly_dien_thoai-1.0-SNAPSHOT.war">
+      <element id="artifact" artifact-name="Quan_ly_dien_thoai:war exploded" />
+    </root>
+  </artifact>
+</component>

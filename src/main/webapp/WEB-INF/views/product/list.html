@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Product</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="Responsive bootstrap 4 admin template" name="description">
+    <meta content="Coderthemes" name="author">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- App favicon -->
+    <link href="/assets/css/style.css" rel="stylesheet">
+    <link rel="shortcut icon" href="\assets\images\favicon.ico">
+
+    <!-- Table datatable css -->
+    <link href="\assets\libs\datatables\dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css">
+
+    <link href="\assets\libs\datatables\buttons.bootstrap4.min.css" rel="stylesheet" type="text/css">
+    <link href="\assets\libs\datatables\responsive.bootstrap4.min.css" rel="stylesheet" type="text/css">
+    <link href="\assets\libs\datatables\select.bootstrap4.min.css" rel="stylesheet" type="text/css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <!-- App css -->
+    <link href="\assets\css\bootstrap.min.css" rel="stylesheet" type="text/css" id="bootstrap-stylesheet">
+    <link href="\assets\css\icons.min.css" rel="stylesheet" type="text/css">
+    <link href="\assets\css\app.min.css" rel="stylesheet" type="text/css" id="app-stylesheet">
+
+    <script src="/assets/js/app/jquery-3.6.0.min.js"></script>
+
+    <style>
+        td {
+            display: table-cell !important;
+            vertical-align: middle !important; /* Important */
+        }
+
+        .price {
+            color: #fe6f42;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Begin page -->
+<!-- Begin page -->
+<div id="wrapper">
+    <th:block th:replace="/layout/navbar:: navbar"/>
+    <th:block th:replace="/layout/left_side :: left-side"/>
+    <!-- ============================================================== -->
+    <!-- Start Page Content here -->
+    <!-- ============================================================== -->
+
+    <div class="content-page">
+        <div class="content">
+
+            <!-- Start Content-->
+            <div class="container-fluid">
+
+                <!-- start page title -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="page-title-box">
+                            <h4 class="page-title">Product</h4>
+                        </div>
+                    </div>
+                </div>
+                <!-- end page title -->
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card-box">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <input type="search" class="form-control" placeholder="Search..."
+                                           id="searchProduct">
+                                </div>
+                                <div class="col-sm-3">
+                                    <button class="btn btn-primary" id="btnSearchProduct">Search</button>
+                                </div>
+                                <div class="col-sm-6">
+                                    <button id="addProduct" class="btn btn-outline-success btn-add"
+                                            style="float: right">
+                                        <i class="fa fa-plus"></i> Add new Product
+                                    </button>
+                                </div>
+                            </div>
+                            <p></p>
+
+                            <table id="tbProduct" class="table table-bordered dt-responsive nowrap"
+                                   style="border-collapse: collapse; border-spacing: 0; width: 100%;text-align: center ">
+                                <thead>
+                                <tr class="text-muted">
+                                    <th class="col-1">#</th>
+                                    <th class="col-2">Title</th>
+                                    <th class="col-3">Image</th>
+                                    <th class="col-2">Price</th>
+                                    <th class="col-2">Category</th>
+                                    <th class="col-2" colspan="3">Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div> <!-- end row -->
+
+            </div> <!-- end container-fluid -->
+
+        </div> <!-- end content -->
+
+
+    </div>
+
+</div>
+<!-- END wrapper -->
+
+<!--Modal-->
+<th:block th:replace="/product/modal_create :: modal_create"/>
+<th:block th:replace="/product/modal_update :: modal_update"/>
+
+
+<!--Script-->
+
+
+<th:block th:replace="/layout/script :: script"/>
+<th:block th:replace="/layout/script :: script-page"/>
+
+<script src="/assets/js/app/jquery.validate.js"></script>
+
+
+<script>
+    let product = new Product();
+    let category = new Category();
+
+    function loadProducts() {
+        // alert("okey")
+        return $.ajax({
+            headers: {
+                "Accept" : "application/json",
+                "Content-Type" : "application/json"
+            },
+            type: "GET",
+            url: "http://localhost:8080/api/products"
+        })
+            .done((data) => {
+                $.each(data, (i, item) => {
+                    let str = `
+                                    <tr id="tr_${item.id}">
+                                       <td>${item.id}</td>
+                                       <td>${item.name}</td>
+                                       <td>
+                                           <img src="${item.image}" width="120px" height="auto"/>
+                                       </td>
+                                       <td >${item.price} VND</td>
+
+                                       <td>${item.category.categoryName}</td>
+                                       <td>
+                                             <button data-id = "${item.id}" type="button" class="btn btn-outline-secondary edit"> Edit </button>
+                                             <button data-id = "${item.id}" type="button" class="btn btn-outline-danger block"> Delete </button>
+                                             <button data-id = "${item.id}" type="button" class="btn btn-outline-warning btn-add-cart"> Add To Cart </button>
+                                       </td>
+                                    </tr>
+                        `;
+                    $("#tbProduct tbody").prepend(str);
+                })
+                handleBtn();
+                showCategory();
+            }).fail((jqXHR) => {
+
+            })
+    }
+
+
+
+    $("#addProduct").on("click", function () {
+        $("#mdCreate").modal("show");
+    })
+
+    $("#btnCreate").on("click", function () {
+        $('#mdCreate .modal-alert-danger').removeClass('show').addClass('hide');
+        $("#mdCreate .modal-alert-danger").empty();
+        $('#frmCreate').submit();
+    })
+
+    $('#btnEdit').on('click', function () {
+        $('#mdEdit .modal-alert-danger').removeClass('show').addClass('hide');
+        $("#mdEdit .modal-alert-danger").empty();
+        $('#frmEdit').submit();
+    })
+
+    function doCreate() {
+        category.id = $("#category").val();
+        category.categoryName = $("#category option:selected").text();
+
+        delete product.id;
+        product.name = $('#name').val();
+        product.image = $('#image').val();
+        product.price = $('#price').val();
+        product.category = category;
+        product.isDeleted = 0;
+
+        $.ajax({
+            headers: {
+                "accept": "application/json",
+                "content-type": "application/json"
+            },
+            type: "POST",
+            url: "http://localhost:8080/api/products/create",
+            data: JSON.stringify(product)
+        })
+            .done((item) => {
+                let str = `
+                                    <tr id="tr_${item.id}">
+                                       <td>${item.id}</td>
+                                       <td>${item.name}</td>
+                                       <td>
+                                           <img src="${item.image}" width="120px" height="auto"/>
+                                       </td>
+                                       <td>${item.price} VND</td>
+                                       <td>${item.category.categoryName}</td>
+                                       <td>
+                                             <button data-id = "${item.id}" type="button" class="btn btn-outline-secondary edit"> Edit </button>
+                                             <button data-id = "${item.id}" type="button" class="btn btn-outline-danger block"> Delete </button>
+                                             <button data-id = "${item.id}" type="button" class="btn btn-outline-warning btn-add-cart"> Add To Cart </button>
+                                       </td>
+                                    </tr>
+                        `;
+
+                $("#tbProduct tbody").prepend(str);
+
+                handleBtn();
+
+                $("#mdCreate").modal("hide");
+
+                App.SweetAlert.showSuccessAlert("Create product success!");
+            })
+            .fail((jqXHR) => {
+
+                let str = ``;
+
+                if (jqXHR.status === 401) {
+                    setTimeout(() => {
+                        App.SweetAlert.showErrorAlert(App.ERROR_401);
+                    }, 3000)
+
+                    location.href = "/logout";
+
+                } else if (jqXHR.status === 403) {
+                    App.SweetAlert.showErrorAlert(App.ERROR_403);
+
+                } else if (jqXHR.status === 500) {
+                    App.SweetAlert.showErrorAlert(App.ERROR_500);
+                } else if (jqXHR.responseJSON) {
+
+                    $.each(jqXHR.responseJSON, function (key, value) {
+                        str += `<label id="${key}-error" class="error" for="${key}">${value}</label>`;
+                        $("#" + key).addClass("error");
+                    });
+
+                }
+
+                $("#mdCreate .modal-alert-danger").empty().removeClass("hide").addClass("show").append(str);
+            });
+
+        $("#frmCreate")[0].reset();
+    }
+
+    function doEdit() {
+
+        category.id = $("#categoryUp").val();
+        category.categoryName = $("#categoryUp option:selected").text();
+        console.log(category);
+
+
+        product.name = $('#nameUp').val();
+        product.image = $('#imageUp').val();
+        product.amount = $('#amountUp').val();
+        product.price = $('#priceUp').val();
+        product.category = category;
+        console.log(product);
+
+        $.ajax({
+            headers: {
+                "accept": "application/json",
+                "content-type": "application/json"
+            },
+            type: "PUT",
+            url: "http://localhost:8080/api/products/edit/" + product.id,
+            data: JSON.stringify(product)
+        })
+            .done((item) => {
+                console.log(item);
+                let str = `
+                                    <tr id="tr_${item.id}">
+                                       <td>${item.id}</td>
+                                       <td>${item.name}</td>
+                                       <td>
+                                           <img src="${item.image}" width="120px" height="auto"/>
+                                       </td>
+                                      <td>${item.price}</td>
+                                       <td>${item.category.categoryName}</td>
+                                       <td>
+                                             <button data-id = "${item.id}" type="button" class="btn btn-outline-secondary edit"> Edit </button>
+                                             <button data-id = "${item.id}" type="button" class="btn btn-outline-danger block"> Delete </button>
+                                             <button data-id = "${item.id}" type="button" class="btn btn-outline-warning btn-add-cart"> Add To Cart </button>
+                                       </td>
+                                    </tr>
+                        `;
+
+                let currentRow = $('#tr_' + item.id);
+                currentRow.replaceWith(str);
+
+                handleBtn();
+                $("#mdEdit").modal("hide");
+
+                App.SweetAlert.showSuccessAlert("Update product success!");
+
+            })
+            .fail((jqXHR) => {
+
+                let str = ``;
+
+                if (jqXHR.status === 401) {
+                    App.SweetAlert.showErrorAlert(App.ERROR_401);
+                    setTimeout(() => {
+                        location.href = "/logout";
+                    }, 3000)
+
+                } else if (jqXHR.status === 403) {
+                    App.SweetAlert.showErrorAlert(App.ERROR_403);
+
+                } else if (jqXHR.status === 500) {
+                    App.SweetAlert.showErrorAlert(App.ERROR_500);
+                } else if (jqXHR.responseJSON) {
+
+                    $.each(jqXHR.responseJSON, function (key, value) {
+                        str += `<label id="${key}Up-error" class="error" for="${key}Up">${value}</label>`;
+                        $("#" + key).addClass("error");
+                    });
+                    $("#mdEdit .modal-alert-danger").empty().removeClass("hide").addClass("show").append(str);
+                }
+            })
+        // $("#frmEdit")[0].reset();
+    }
+
+    function doBlock() {
+        $.ajax({
+            headers: {
+                "accept": "application/json",
+                "content-type": "application/json"
+            },
+            type: "DELETE",
+            url: "http://localhost:8080/api/products/block/" + product.id,
+            data: JSON.stringify(product)
+        })
+            .done((item) => {
+                console.log(item);
+
+                let currentRow = $('#tr_' + item);
+                currentRow.replaceWith("");
+
+                handleBtn();
+                // $("#mdEdit").modal("hide");
+
+                App.SweetAlert.showSuccessAlert("Deleted product success!");
+
+            })
+            .fail((jqXHR) => {
+
+                if (jqXHR.status === 401) {
+                    App.SweetAlert.showErrorAlert(App.ERROR_401);
+                    setTimeout(() => {
+                        location.href = "/logout";
+                    }, 3000)
+
+                } else if (jqXHR.status === 403) {
+                    App.SweetAlert.showErrorAlert(App.ERROR_403);
+
+                } else if (jqXHR.status === 500) {
+                    App.SweetAlert.showErrorAlert(App.ERROR_500);
+                }
+            })
+
+        // $("#frmEdit")[0].reset();
+    }
+
+    $('#frmCreate').validate({
+
+        submitHandler: function () {
+            doCreate();
+        }
+    });
+
+    $('#frmEdit').validate({
+
+        submitHandler: function () {
+            doEdit();
+        }
+    });
+
+
+    $("#mdCreate").on("hidden.bs.modal", function () {
+        $("#mdCreate .modal-alert-danger").empty();
+        $("#frmCreate")[0].reset();
+        $('#mdCreate .modal-alert-danger').removeClass('show').addClass('hide');
+    });
+
+    $("#mdEdit").on("hidden.bs.modal", function () {
+        $("#mdEdit .modal-alert-danger").empty();
+        $("#mdEdit .modal-alert-danger").removeClass("show").addClass("hide");
+        $("#frmEdit input.error").removeClass("error");
+        $("#frmEdit")[0].reset();
+        $("#frmEdit").validate().resetForm();
+    });
+
+    function handleEditBtn() {
+
+        $('.edit').on('click', function () {
+            let id = $(this).data('id');
+
+            findById(id).then(function () {
+
+                $('#nameUp').val(product.name);
+                $('#imageUp').val(product.image);
+                $('#priceUp').val(product.price);
+                $('#categoryUp').val(product.category.id);
+
+                $('#mdEdit').modal('show');
+            });
+        });
+    }
+
+    function handleBlockUser() {
+        $(".block").on("click", function () {
+            let id = $(this).data("id");
+
+            findById(id).then(function () {
+                App.SweetAlert.showSuspendConfirmDialog()
+                    .then((result) => {
+
+                        if (result.isConfirmed)
+                            doBlock();
+                    });
+            })
+        })
+    }
+
+    function doAddToCart(productId){
+        product = new Product();
+        product.id = productId;
+        $.ajax({
+            headers: {
+                "Accept" : "application/json",
+                "Content-Type" : "application/json"
+            },
+            type: "POST",
+            url: "http://localhost:8080/api/products/add-cart",
+            data: JSON.stringify(product)
+        })
+            .done((data) => {
+                App.SweetAlert.showSuccessAlert('Thêm vào thành công');
+
+            }).fail((jqXHR) => {
+
+        })
+    }
+    function handleAddToCart(){
+        $(".btn-add-cart").on('click', function () {
+            let productId = $(this).data("id");
+            doAddToCart(productId);
+        })
+
+    }
+
+    function handleBtn() {
+        handleEditBtn();
+        handleBlockUser();
+        handleAddToCart();
+    }
+
+    function findById(id) {
+        return $.ajax({
+            headers: {
+                "Accept" : "application/json",
+                "Content-Type" : "application/json"
+            },
+            type: "GET",
+            url: "http://localhost:8080/api/products/" + id
+        })
+            .done((data) => {
+                console.log(data);
+                product = data;
+            })
+            .fail((err) => {
+                alert("Id not found");
+            })
+    }
+
+    function showCategory() {
+
+        $.ajax({
+            headers: {
+                "Accept" : "application/json",
+                "Content-Type" : "application/json"
+            },
+            type: "GET",
+            url: "http://localhost:8080/api/categories"
+        }).done((data) => {
+            $("#category").empty();
+            $("#categoryUp").empty();
+
+            $.each(data, (i, item) => {
+                let str = `<option value="${item.id}" >${item.categoryName}</option>`;
+                $("#category").append(str);
+                $("#categoryUp").append(str);
+            })
+        })
+            .fail((err) => {
+                alert("Load category fail!");
+            })
+    }
+
+    function doSearchProduct() {
+        $('#btnSearchProduct').on('click', function () {
+            let query = $('#searchProduct').val();
+            $('#tbProduct tbody').html("")
+            if (query === "") {
+                loadProducts();
+                return
+            }
+
+            $.ajax({
+                headers: {
+                    "Accept" : "application/json",
+                    "Content-Type" : "application/json"
+                },
+                "type": "GET",
+                "url": "http://localhost:8080/api/products/search/" + query
+            })
+                .done((data) => {
+                    $('#tbProduct tbody').html("")
+                    $.each(data, (i, item) => {
+
+                        product = item;
+                        let str = `
+                                    <tr id="tr_${item.id}">
+                                       <td>${item.id}</td>
+                                       <td>${item.name}</td>
+                                       <td>
+                                           <img src="${item.image}" width="120px" height="auto"/>
+                                       </td>
+                                        <td>${item.price} VND</td>
+                                       <td>${item.category.categoryName}</td>
+                                       <td>
+                                             <button data-id = "${item.id}" type="button" class="btn btn-outline-secondary edit"> Edit </button>
+                                             <button data-id = "${item.id}" type="button" class="btn btn-outline-danger block"> Delete </button>
+                                             <button data-id = "${item.id}" type="button" class="btn btn-outline-warning btn-add-cart"> Add To Cart </button>
+                                       </td>
+                                    </tr>
+                        `;
+                        $('#tbProduct tbody').prepend(str);
+
+                    })
+                })
+        })
+    }
+
+    doSearchProduct();
+
+    loadProducts();
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <th:block th:replace="/layout/head :: head"/>
+<!--    <link rel="stylesheet" href="/assets/css/login.css">-->
+    <link rel="stylesheet" href="/assets/css/loginAdmin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css">
+    <title>LOGIN</title>
+</head>
+
+<body>
+
+<div class="login-page">
+    <div class="form">
+        <form class="register-form">
+            <input type="email" placeholder="Email" id="emailReg"/>
+<!--            <td th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Name Error</td>-->
+            <input type="password" placeholder="Password" id="passwordReg"/>
+            <input type="text" placeholder="Phone" id="phone"/>
+            <input type="text" placeholder="Address" id="address"/>
+            <select  id="role" class="form-control mb-2">
+                <option value="1">ADMIN</option>
+                <option value="2">USER</option>
+            </select>
+            <button id="btnRegister">Register</button>
+            <p class="message">Already registered? <a href="#">Sign In</a></p>
+        </form>
+        <form class="login-form">
+            <input type="text" placeholder="username" id="usernameLog"/>
+            <input type="password" placeholder="password" id="passwordLog"/>
+            <button id="btnLogin" type="button">login</button>
+            <p class="message">Not registered? <a href="#">Create an account</a></p>
+        </form>
+    </div>
+</div>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="/assets/jquery/jquery-v3.6.0.min.js"></script>
+<th:block th:replace="/layout/script :: script"/>
+<th:block th:replace="/layout/script :: script-page"/>
+<script>
+    $('.message a').click(function(){
+        $('form').animate({height: "toggle", opacity: "toggle"}, "slow");
+    });
+
+    $("#btnLogin").on('click', () => {
+        let username = $("#usernameLog").val();
+        let password = $("#passwordLog").val();
+        let user = {
+            username,
+            password
+        }
+        $.ajax({
+            headers: {
+                "accept": "application/json",
+                "content-type": "application/json"
+            },
+            type: "POST",
+            url: "http://localhost:8080/api/auth/login",
+            data: JSON.stringify(user)
+        })
+            .done((data) => {
+                console.log(data)
+                App.SweetAlert.showSuccessAlert('Đăng nhập thành công');
+                setTimeout(() => {
+                    location.href = "/products";
+                }, 2000);
+            })
+            .fail((jqXHR) => {
+                console.log(jqXHR)
+                App.SweetAlert.showErrorAlert('Email hoặc mật khẩu không đúng!');
+            })
+    })
+
+    $("#btnRegister").on("click", () => {
+        let user = {
+            username: $("#emailReg").val(),
+            password: $("#passwordReg").val(),
+            phone: $("#phone").val(),
+            address: $("#address").val(),
+            role: {
+                id: $("#role").val()
+            }
+        }
+
+        $.ajax({
+            "headers": {
+                "accept": "application/json",
+                "content-type": "application/json"
+            },
+            "type": "POST",
+            "url": "http://localhost:8080/api/auth/register",
+            "data": JSON.stringify(user)
+        })
+            .done(() => {
+
+                setTimeout(() => {
+                    App.SweetAlert.showSuccessAlert("Đăng ký thành công!");
+                    window.location.href = "/login.html"
+                }, 1000);
+
+            })
+            .fail((jqXHR) => {
+                iziToast.destroy();
+                if (jqXHR.responseJSON) {
+                    if (jqXHR.responseJSON.message) {
+                        App.IziToast.showErrorAlert(jqXHR.responseJSON.message);
+                    } else {
+                        $.each( jqXHR.responseJSON, function( key, value ) {
+                            App.IziToast.showErrorAlert(value);
+                        });
+                    }
+                } else {
+                    $.notify("Đã xảy ra lỗi. Vui lòng thử lại", "error");
+                }
+            })
+    });
+
+
+</script>
+
+
+</body>
+
+</html>
